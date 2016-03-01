@@ -73,7 +73,7 @@ public class ELMIO implements KWP2000IO {
                 for(String line : m_inputLines) {
                     // Go hunting for the first valid bytes in the buffer.
                     // This is here because sometimes ELM likes to tell us random human-readable garbage (SEARCHING..., NO DATA, etc.)
-                    byte[] candidate = parseByteLine(line);
+                    byte[] candidate = HexUtil.parseByteLine(line);
                     if (candidate.length > 0) {
                         LOGGER.log(Level.INFO, "Got bytes from line " + HexUtil.bytesToHexString(candidate));
                         m_inputLines.remove(line);
@@ -141,19 +141,5 @@ public class ELMIO implements KWP2000IO {
                 LOGGER.log(Level.INFO, "Added line to output buffer: " + line);
             }
         }
-    }
-
-    private byte[] parseByteLine(String byteLine) {
-        byteLine = byteLine.replaceAll("\\s", ""); // Remove whitespace
-        if (!byteLine.matches("([0-9A-F])+")) { // Check for hexish-ness
-            return new byte[0];
-        }
-        final int len = byteLine.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(byteLine.charAt(i), 16) << 4)
-                    + Character.digit(byteLine.charAt(i+1), 16));
-        }
-        return data;
     }
 }
